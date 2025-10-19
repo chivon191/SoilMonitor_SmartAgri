@@ -1,19 +1,19 @@
 #include "control.h"
 #include <Arduino.h>
+#include "algo.h"
 
-#define PUMP_PIN  26
+#define PUMP_PIN  13
 #define LED_PIN 27
 #define AREA 10.0 // Diện tích vườn (m²)
 #define FLOW_RATE 0.1 // Lưu lượng bơm (lít/s)
 
 extern float I_needed;
-extern float MIN_I_NEEDED;
 
 void initActuators() {
   pinMode(PUMP_PIN, OUTPUT);
   pinMode(LED_PIN, OUTPUT);
-  digitalWrite(PUMP_PIN, HIGH); // mặc định tắt
-  digitalWrite(LED_PIN, HIGH); // mặc định tắt
+  digitalWrite(PUMP_PIN, LOW); // mặc định tắt
+  digitalWrite(LED_PIN, LOW); // mặc định tắt
   Serial.println("[Actuators] Initialized.");
 }
 

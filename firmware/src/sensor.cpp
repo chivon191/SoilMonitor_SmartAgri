@@ -9,10 +9,10 @@
 #include <time.h>
 #include "algo.h"
 
-#define RE_DE  13
+#define RE_DE  5
 #define RXD2   16
 #define TXD2   17
-#define DHTPIN 14
+#define DHTPIN 12
 #define DHTTYPE DHT22
 
 float soilTemperatureRaw = 0.0;
@@ -36,6 +36,7 @@ int   soilK           = 0;
 float humidity = 0.0;
 float temperature = 0.0;
 float visibleLux = 0.0;
+uint8_t growthStage = 1;
 
 
 Adafruit_TSL2591 tsl = Adafruit_TSL2591(2591);
@@ -67,10 +68,19 @@ void initDHTSensors() {
   Serial.println("[DHTSensor] Initialized.");
 }
 
+void clearUARTBuffer() {
+  unsigned long startTime = millis();
+  while (Serial2.available() && (millis() - startTime < 1000)) {
+    Serial2.read();
+    delay(10);
+  }
+}
+
 void initSoilSensors() {
   Serial2.begin(9600, SERIAL_8N1, RXD2, TXD2);
   pinMode(RE_DE, OUTPUT);
   digitalWrite(RE_DE, LOW);
+  clearUARTBuffer();
   Serial.println("[SoilSensor] Initialized.");
 }
 

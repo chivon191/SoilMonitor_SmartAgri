@@ -9,17 +9,18 @@
 const char* ssid = "donnn";
 const char* password = "88888888";
 
-// float latitude = 10.827263;
-// float longitude = 106.630918;
+// Cấu hình tưới
+#define IRRIGATION_HOUR_1       5u      // 5h sáng
+#define IRRIGATION_HOUR_2       17u     // 17h chiều
+
+// Cấu hình interval (tính bằng milliseconds)
+#define WATERBALANCE_INTERVAL   30000UL     // 30 giây
+#define WIFI_RECONNECT_INTERVAL 300000UL    // 5 phút
+#define FIREBASE_INTERVAL       30000UL     // 30 giây
 
 unsigned long lastSensorTime = 0;
 unsigned long lastLogTime = 0;
 
-const unsigned long logInterval    = 5 * 60 * 1000; // 5 phút gửi Firebase
-int IRRIGATION_HOUR_1 = 5;
-int IRRIGATION_HOUR_2 = 17;
-int UPDATE_INTERVAL = 60000; //test 1 phút đọc cảm biến
-float WIFI_RECONNECT_INTERVAL = 300000; //test 5 phút thử reconnect wifi
 bool isScheduledIrrigation = false;
 int year;
 int month;
@@ -71,6 +72,7 @@ void reconnectWiFi() {
 }
 
 void setup() {
+  delay(3000);
   Serial.begin(9600);
   WiFi.begin(ssid, password);
   reconnectWiFi();
@@ -134,7 +136,7 @@ void loop() {
   // }
 
   // Kiểm tra water balance mỗi 2 giờ
-  if (millis() - lastUpdate >= UPDATE_INTERVAL) {
+  if (millis() - lastUpdate >= WATERBALANCE_INTERVAL) {
     sensorCycle();
     updateSoilMoisture(false);  // Kiểm tra bổ sung
     lastUpdate = millis();

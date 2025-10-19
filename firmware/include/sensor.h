@@ -6,6 +6,7 @@
 void initSensors();
 void initLuxSensors();
 void initDHTSensors();
+void clearUARTBuffer();
 void initSoilSensors();
 void readSoilSensorRaw();
 void readDHTSensorRaw();
@@ -35,5 +36,6 @@ extern int soilK;
 extern float humidity;
 extern float temperature;
 extern float visibleLux;
+extern uint8_t growthStage;
 
 #endif

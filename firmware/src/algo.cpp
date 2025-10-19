@@ -8,6 +8,10 @@ extern float humidity;         // % (độ ẩm tương đối)
 extern float visibleLux;    // lux
 extern float soilMoisture;     // fraction (0-1)
 extern float soilTemperature;  // °C
+extern int soilN;
+extern int soilP;
+extern int soilK;
+extern uint8_t growthStage;
 
 // Tham số cho cà chua trong nhà kính
 float Kc = 0.8;               // Hệ số cây trồng (0.6-1.2 tùy giai đoạn)
@@ -20,27 +24,6 @@ float theta_wp = 0.15;        // Wilting Point (fraction)
 float Zr = 0.3;               // Độ sâu rễ (m)
 float p = 0.5;                // Management Allowed Depletion (phù hợp cho cà chua)
 float z = 100;                // Độ cao ước lượng (mét)
-
-// Tham số mô hình Priestley-Taylor
-float ALPHA = 1.26;           // Hệ số Priestley-Taylor
-float P0 = 101.3;             // Áp suất khí quyển tiêu chuẩn tại mực nước biển (kPa)
-float TEMP_REF = 293;         // Nhiệt độ tham chiếu (K) để tính áp suất khí quyển
-float LAPSE_RATE = 0.0065;    // Tỷ lệ giảm nhiệt độ theo độ cao (K/m)
-float GRAVITY_EXP = 5.26;     // Số mũ trong công thức tính áp suất khí quyển
-float GAMMA_CONST = 0.665e-3; // Hằng số để tính psychrometric constant (kPa/°C per kPa)
-float LAMBDA_BASE = 2.501;    // Nhiệt ẩn hóa hơi cơ bản (MJ/kg, tại 0°C)
-float LAMBDA_SLOPE = 2.361e-3;// Hệ số điều chỉnh nhiệt ẩn hóa hơi theo nhiệt độ (MJ/kg/°C)
-float ES_CONST = 0.6108;      // Hằng số trong công thức áp suất bão hòa (kPa)
-float ES_SLOPE = 17.27;       // Hệ số trong công thức áp suất bão hòa
-float ES_TEMP_OFFSET = 237.3; // Nhiệt độ tham chiếu trong công thức áp suất bão hòa (°C)
-float DELTA_CONST = 4098;     // Hằng số trong công thức tính delta
-float LUX_TO_RN = 0.000198;   // Hệ số chuyển đổi lux sang MJ/m²/day (1 lux ≈ 0.000198 MJ/m²/day)
-float GREENHOUSE_FACTOR = 0.7; // Hệ số điều chỉnh bức xạ trong nhà kính
-float G = 0;                  // Soil heat flux (MJ/m²/day, mặc định 0 cho daily scale)
-float SM_SENSOR_WEIGHT = 0.3; // Trọng số của SM_sensor khi hiệu chỉnh SM (30%)
-float SM_MODEL_WEIGHT = 0.7;  // Trọng số của SM tính toán (70%)
-float MIN_I_NEEDED = 3.0;
-float RAW_THRESHOLD = 0.7;
 
 // Soil sensors
 KalmanState soilMoistureFilter   = {0, 1.0, 0.05, 2.0, false};   // soil moisture (%)
