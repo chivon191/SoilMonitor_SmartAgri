@@ -55,7 +55,7 @@ extern KalmanState luxFilter;
 void initLuxSensors() {
   if (!tsl.begin()) {
     Serial.println("Không tìm thấy TSL2591 ...");
-    while (1);
+    // while (1);
   }
   tsl.setGain(TSL2591_GAIN_MED);              // Độ nhạy trung bình
   tsl.setTiming(TSL2591_INTEGRATIONTIME_100MS); // Thời gian đo 100ms
