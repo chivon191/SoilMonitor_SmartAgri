@@ -30,22 +30,33 @@ extern float Zr; // m
 extern float p;
 extern float z;
 
-extern float ALPHA;            // Hệ số Priestley-Taylor
-extern float P0;               // Áp suất khí quyển tiêu chuẩn tại mực nước biển (kPa)
-extern float TEMP_REF;         // Nhiệt độ tham chiếu (K) để tính áp suất khí quyển
-extern float LAPSE_RATE;       // Tỷ lệ giảm nhiệt độ theo độ cao (K/m)
-extern float GRAVITY_EXP;      // Số mũ trong công thức tính áp suất khí quyển
-extern float GAMMA_CONST;      // Hằng số để tính psychrometric constant (kPa/°C per kPa)
-extern float LAMBDA_BASE;      // Nhiệt ẩn hóa hơi cơ bản (MJ/kg, tại 0°C)
-extern float LAMBDA_SLOPE;     // Hệ số điều chỉnh nhiệt ẩn hóa hơi theo nhiệt độ (MJ/kg/°C)
-extern float ES_CONST;         // Hằng số trong công thức áp suất bão hòa (kPa)
-extern float ES_SLOPE;         // Hệ số trong công thức áp suất bão hòa
-extern float ES_TEMP_OFFSET;   // Nhiệt độ tham chiếu trong công thức áp suất bão hòa (°C)
-extern float DELTA_CONST;      // Hằng số trong công thức tính delta
-extern float LUX_TO_RN;        // Hệ số chuyển đổi lux sang MJ/m²/day
-extern float GREENHOUSE_FACTOR; // Hệ số điều chỉnh bức xạ trong nhà kính
-extern float G;                // Soil heat flux (MJ/m²/day, mặc định 0 cho daily scale)
-extern float SM_SENSOR_WEIGHT; // Trọng số của SM_sensor khi hiệu chỉnh SM (30%)
-extern float SM_MODEL_WEIGHT;  // Trọng số của SM tính toán (70%)
+extern float urea_kg_ha;    // kg/ha
+extern float urea_g_plant;  // g/cây
+extern float dap_kg_ha;
+extern float dap_g_plant;  
+extern float kcl_kg_ha;
+extern float kcl_g_plant;
+extern String recommendation_text;
+extern bool needs_fertilization;
+
+struct NutrientThreshold {
+  float N_low, N_high;
+  float P_low, P_high;
+  float K_low, K_high;
+};
+
+const NutrientThreshold tomatoThreshold = {4.0f, 6.0f, 
+                                     0.25f, 0.8f, 
+                                     2.5f, 5.0f};
+
+struct StageFactor {
+  float urea_factor;
+  float dap_factor; 
+  float kcl_factor;
+  const char* priority_note;
+};
+
+StageFactor getStageFactor(int growthStage);
+void analyzeNutrientNeeds();
 
 #endif

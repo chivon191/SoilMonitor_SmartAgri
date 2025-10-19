@@ -26,6 +26,7 @@ int month;
 int day;
 int hour;
 int minute;
+extern String recommendation_text;
 
 void initTime() {
   // Cấu hình NTP
@@ -53,25 +54,24 @@ void getCurrentDateTime() {
 }
 
 void reconnectWiFi() {
-    if (WiFi.status() != WL_CONNECTED) {
-        Serial.print("Reconnecting to WiFi");
-        WiFi.reconnect();
-        for (int i = 0; i < 10 && WiFi.status() != WL_CONNECTED; i++) {
-            delay(500);
-            Serial.print(".");
-        }
-        if (WiFi.status() == WL_CONNECTED) {
-            Serial.println("WiFi reconnected");
-            initTime(); // Khởi tạo lại NTP khi kết nối thành công
-        } else {
-            Serial.println("WiFi reconnect failed");
-        }
+  if (WiFi.status() != WL_CONNECTED) {
+    Serial.print("Reconnecting to WiFi");
+    WiFi.reconnect();
+    for (int i = 0; i < 10 && WiFi.status() != WL_CONNECTED; i++) {
+      delay(500);
+      Serial.print(".");
     }
+    if (WiFi.status() == WL_CONNECTED) {
+      Serial.println("WiFi reconnected");
+      initTime(); // Khởi tạo lại NTP khi kết nối thành công
+    } else {
+      Serial.println("WiFi reconnect failed");
+    }
+  }
 }
 
 void setup() {
   Serial.begin(9600);
-
   WiFi.begin(ssid, password);
   reconnectWiFi();
   initSensors();
@@ -92,6 +92,8 @@ void sensorCycle() {
   drawWidget(5, 175, 100, 60, "Nitro", soilN, "mg/kg", TFT_YELLOW, TFT_BLACK);
   drawWidget(110, 175, 100, 60, "Photpho", soilP, "mg/kg", TFT_MAGENTA, TFT_WHITE);
   drawWidget(215, 175, 100, 60, "Kali", soilK, "mg/kg", TFT_ORANGE, TFT_WHITE);
+  analyzeNutrientNeeds();
+  Serial.println(recommendation_text);
 }
 
 // Hàm kiểm tra thời gian tưới cố định
