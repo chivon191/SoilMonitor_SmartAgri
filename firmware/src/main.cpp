@@ -3,18 +3,17 @@
 #include "control.h"
 #include "display.h"
 #include "algo.h"
-#include <PubSubClient.h>
 #include <WiFi.h>
 
-const char* ssid = "donnn";
-const char* password = "88888888";
+const char* ssid = "Lau 2A_2.4Ghz";
+const char* password = "1234567890@";
 
 // Cấu hình tưới
-#define IRRIGATION_HOUR_1       5u      // 5h sáng
-#define IRRIGATION_HOUR_2       17u     // 17h chiều
+#define IRRIGATION_HOUR_1       6u      // 6h sáng
+#define IRRIGATION_HOUR_2       15u     // 15h chiều (tốt hơn 17h)
 
 // Cấu hình interval (tính bằng milliseconds)
-#define WATERBALANCE_INTERVAL   30000UL     // 30 giây
+#define WATERBALANCE_INTERVAL   60000UL     // 30 giây
 #define WIFI_RECONNECT_INTERVAL 300000UL    // 5 phút
 #define FIREBASE_INTERVAL       30000UL     // 30 giây
 
@@ -27,7 +26,6 @@ int month;
 int day;
 int hour;
 int minute;
-extern String recommendation_text;
 
 void initTime() {
   // Cấu hình NTP
@@ -72,30 +70,32 @@ void reconnectWiFi() {
 }
 
 void setup() {
-  delay(3000);
   Serial.begin(9600);
-  WiFi.begin(ssid, password);
-  reconnectWiFi();
+  delay(100);
+  // softResetRS485();
   initSensors();
+  delay(100);
   initTFT();
   initActuators();
-
+  WiFi.begin(ssid, password);
+  reconnectWiFi();
   Serial.println("[System] Setup completed");
 }
 
 void sensorCycle() {
+  // Đọc cảm biến
   getSoilSensor();
   getDHTSensor();
   getLuxSensor();
+  
+  // Hiển thị trên TFT với đơn vị chính xác
   drawWidget(5, 35, 150, 60, "Humidity", soilMoisture, "%", TFT_BLUE, TFT_WHITE);
-  drawWidget(165, 35, 150, 60, "Temperature", soilTemperature, "C", TFT_RED, TFT_WHITE);
-  drawWidget(5, 105, 150, 60, "EC", soilEC, "uS/cm", TFT_GREEN, TFT_WHITE);
-  drawWidget(165, 105, 150, 60, "pH", soilPH, "", TFT_CYAN, TFT_WHITE);
+  drawWidget(165, 35, 150, 60, "Temperature", soilTemperature, "°C", TFT_RED, TFT_WHITE);
+  drawWidget(5, 105, 150, 60, "EC", soilEC, "mS/cm", TFT_GREEN, TFT_WHITE);
+  drawWidget(165, 105, 150, 60, "pH", soilPH, "", TFT_CYAN, TFT_BLACK);
   drawWidget(5, 175, 100, 60, "Nitro", soilN, "mg/kg", TFT_YELLOW, TFT_BLACK);
   drawWidget(110, 175, 100, 60, "Photpho", soilP, "mg/kg", TFT_MAGENTA, TFT_WHITE);
   drawWidget(215, 175, 100, 60, "Kali", soilK, "mg/kg", TFT_ORANGE, TFT_WHITE);
-  analyzeNutrientNeeds();
-  Serial.println(recommendation_text);
 }
 
 // Hàm kiểm tra thời gian tưới cố định
@@ -106,6 +106,13 @@ bool isScheduledIrrigationTime() {
   getCurrentDateTime();
   // Tưới trong khoảng ±5 phút của 6h và 16h
   return (hour == IRRIGATION_HOUR_1 && minute < 5) || (hour == IRRIGATION_HOUR_2 && minute < 5);
+}
+
+bool isGarbageData(String data) {
+  for (int i = 0; i < data.length(); i++) {
+    if (data[i] < 32 || data[i] > 126) return true;
+  }
+  return false;
 }
 
 void loop() {
@@ -129,16 +136,12 @@ void loop() {
       lastYear = year;
     }
   }
-  // // Kiểm tra thời gian tưới cố định
-  // if (isScheduledIrrigationTime()) {
-  //   sensorCycle();
-  //   updateSoilMoisture(true);  // Tưới cố định
-  // }
 
   // Kiểm tra water balance mỗi 2 giờ
   if (millis() - lastUpdate >= WATERBALANCE_INTERVAL) {
     sensorCycle();
     updateSoilMoisture(false);  // Kiểm tra bổ sung
+    printFertilizerAnalysis();
     lastUpdate = millis();
   }
 

@@ -14,6 +14,7 @@ void readLuxSensorRaw();
 void getSoilSensor();
 void getDHTSensor();
 void getLuxSensor();
+void softResetRS485();
 
 extern float soilTemperatureRaw;
 extern float soilMoistureRaw;

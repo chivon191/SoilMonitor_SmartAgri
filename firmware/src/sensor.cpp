@@ -12,7 +12,7 @@
 #define RE_DE  5
 #define RXD2   16
 #define TXD2   17
-#define DHTPIN 12
+#define DHTPIN 14
 #define DHTTYPE DHT22
 
 float soilTemperatureRaw = 0.0;
@@ -77,17 +77,35 @@ void clearUARTBuffer() {
 }
 
 void initSoilSensors() {
-  Serial2.begin(9600, SERIAL_8N1, RXD2, TXD2);
   pinMode(RE_DE, OUTPUT);
   digitalWrite(RE_DE, LOW);
-  clearUARTBuffer();
+  delay(50);
+  Serial2.begin(9600, SERIAL_8N1, RXD2, TXD2);
+  while (Serial2.available()) Serial2.read();
+  // clearUARTBuffer();
   Serial.println("[SoilSensor] Initialized.");
 }
 
+void softResetRS485() {
+  Serial.println("[RS485] Soft reset...");
+  digitalWrite(RE_DE, LOW);
+  delay(20);
+  Serial2.end();
+  delay(20);
+  Serial2.begin(9600, SERIAL_8N1, RXD2, TXD2);
+  delay(20);
+  for (int i=0; i<5; i++){
+    Serial2.write(0x00);
+    delay(5);
+  }
+  while (Serial2.available()) Serial2.read();
+}
+
 void initSensors() {
+  initSoilSensors();
+  delay(50);
   initLuxSensors();
   initDHTSensors();
-  initSoilSensors();
 }
 
 uint16_t calculateCRC(uint8_t *frame, uint8_t len) {
@@ -139,11 +157,11 @@ void readSoilSensorRaw() {
   // }
   // Serial.println();
 
-  // Giải mã dữ liệu
-  soilMoistureRaw    = (response[3] << 8 | response[4]) / 10.0;
-  soilTemperatureRaw = (response[5] << 8 | response[6]) / 10.0;
-  soilECRaw         = (response[7] << 8 | response[8]) * 1.0;
-  soilPHRaw         = (response[9] << 8 | response[10]) / 10.0;
+  // Giải mã dữ liệu với chuyển đổi đơn vị chính xác
+  soilMoistureRaw    = (response[3] << 8 | response[4]) / 10.0;  // % (0-100)
+  soilTemperatureRaw = (response[5] << 8 | response[6]) / 10.0;  // °C
+  soilECRaw         = (response[7] << 8 | response[8]) * EC_CONVERSION_FACTOR;  // mS/cm
+  soilPHRaw         = (response[9] << 8 | response[10]) / 10.0;  // pH (0-14)
   soilNRaw      = response[11] << 8 | response[12];
   soilPRaw    = response[13] << 8 | response[14];
   soilKRaw    = response[15] << 8 | response[16];
